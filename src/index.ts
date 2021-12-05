@@ -2,13 +2,22 @@ import { Writable } from 'stream';
 
 import { colorToString } from './color';
 import { DEBUG, makeLogger } from './logger';
+import { direction, Ray } from './ray';
+import { unit } from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
+
+function rayColor(r: Ray<3>) {
+	const unitDirection = unit(direction(r));
+}
 
 function createPPM(
 	out: Writable,
 	{ imageWidth = 256, imageHeight = 256 } = {}
 ) {
+	// TODO: Scene setup
+
+	// TODO: Separate out a image buffer
 	out.write(`P3\n`);
 	out.write(`${imageWidth} ${imageHeight}\n`);
 	out.write(`255\n`);

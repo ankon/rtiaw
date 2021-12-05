@@ -1,7 +1,6 @@
 import assert from 'assert';
 
 export type Vector<N extends number> = number[];
-export type Point3 = Vector<3>;
 
 export function negate<N extends number>(v: Vector<N>): Vector<N> {
 	return v.map((e) => -e);
