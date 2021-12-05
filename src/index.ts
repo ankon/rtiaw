@@ -1,5 +1,6 @@
 import { Writable } from 'stream';
 
+import { colorToString } from './color';
 import { DEBUG, makeLogger } from './logger';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
@@ -19,11 +20,7 @@ function createPPM(
 			const g = j / (imageHeight - 1);
 			const b = 0.25;
 
-			out.write(
-				`${Math.floor(255 * r)} ${Math.floor(255 * g)} ${Math.floor(
-					255 * b
-				)}\n`
-			);
+			out.write(`${colorToString([r, g, b])}\n`);
 		}
 	}
 	logger.debug('Done');
