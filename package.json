@@ -1,0 +1,27 @@
+{
+  "name": "@ankon/rtiaw",
+  "version": "0.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo 'No tests' >&2",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "npm run build -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ankon/rtiaw.git"
+  },
+  "author": "Andreas Kohn <andreas.kohn@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ankon/rtiaw/issues"
+  },
+  "homepage": "https://github.com/ankon/rtiaw#readme",
+  "devDependencies": {
+    "@types/node": "^14.18.0",
+    "prettier": "^2.5.1",
+    "tsconfig-collaborne": "^1.5.0",
+    "typescript": "^4.5.2"
+  }
+}
