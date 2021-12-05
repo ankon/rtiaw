@@ -2,7 +2,7 @@ import { vector, Vector } from './vector';
 
 export type Color = Vector<3>;
 
-export function color(r: number, b: number, g: number): Color {
+export function color(r: number, g: number, b: number): Color {
 	return vector(r, g, b);
 }
 
