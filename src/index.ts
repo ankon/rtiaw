@@ -1,8 +1,9 @@
 import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
 
-import { color, Color, colorToString } from './color';
+import { color, Color } from './color';
 import { DEBUG, makeLogger } from './logger';
+import { ImageStream, ppm } from './ppm';
 import { direction, ray, Ray } from './ray';
 import { point3, vec3 } from './vec3';
 import { add, scaled, subtract, unit, unscaled, Vector } from './vector';
@@ -31,13 +32,10 @@ function rayColor(r: Ray<3>): Color {
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
-function createPPM(
-	out: Writable,
-	{ imageWidth = 256, imageHeight = 256 } = {}
-) {
+function render(image: ImageStream) {
 	// TODO: Scene setup
 	// Camera
-	const aspectRatio = imageWidth / imageHeight;
+	const aspectRatio = image.width / image.height;
 
 	const viewportHeight = 2.0;
 	const viewportWidth = aspectRatio * viewportHeight;
@@ -53,16 +51,15 @@ function createPPM(
 		vec3(0, 0, focalLength)
 	);
 
-	// TODO: Separate out a image buffer
-	out.write(`P3\n`);
-	out.write(`${imageWidth} ${imageHeight}\n`);
-	out.write(`255\n`);
-
-	for (let j = imageHeight - 1; j >= 0; j--) {
+	// Render line-by-line
+	// XXX: This is rendered with a decreasing y (i.e. "bottom up"), which might
+	//      be a bit confusing.
+	const line: Color[] = new Array(image.width);
+	for (let j = image.height - 1; j >= 0; j--) {
 		logger.debug(`Remaining ${j}`);
-		for (let i = 0; i < imageWidth; i++) {
-			const u = i / (imageWidth - 1);
-			const v = j / (imageHeight - 1);
+		for (let i = 0; i < image.width; i++) {
+			const u = i / (image.width - 1);
+			const v = j / (image.height - 1);
 			const r = ray(
 				origin,
 				add(
@@ -73,9 +70,11 @@ function createPPM(
 				)
 			);
 			const color = rayColor(r);
-			out.write(`${colorToString(color)}\n`);
+			line[i] = color;
 		}
+		image.writeLine(line);
 	}
+	image.finish();
 	logger.debug('Done');
 }
 
@@ -84,7 +83,11 @@ function main(out: Writable = process.stdout) {
 	const imageWidth = 400;
 	const imageHeight = imageWidth / aspectRatio;
 
-	createPPM(out, { imageWidth, imageHeight });
+	const image = ppm(out, {
+		width: imageWidth,
+		height: imageHeight,
+	});
+	render(image);
 }
 
 main(
