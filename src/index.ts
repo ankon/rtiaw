@@ -3,29 +3,17 @@ import { Writable } from 'stream';
 import { camera, CastRay } from './camera';
 
 import { color, Color } from './color';
-import { lambertianDiffuse } from './diffuse';
+import { diffuse } from './diffuse';
 import { Hit, Hittable, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
-import { direction, ray, Ray } from './ray';
+import { direction, Ray } from './ray';
 import { sphere } from './sphere';
 import { random } from './utils';
-import { Point3, point3, y } from './vec3';
-import {
-	add,
-	scaled,
-	subtract,
-	translate,
-	unit,
-	unscaled,
-	Vector,
-} from './vector';
+import { point3, y } from './vec3';
+import { add, scaled, translate, unit, unscaled, Vector } from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
-
-// Diffuse: Send the ray further in a random direction from the point where it hit
-// the world.
-const diffuse: (at: Point3, n: Vector<3>) => Vector<3> = lambertianDiffuse;
 
 /**
  * Linear blend/interpolate between `v1` and `v2`
@@ -43,6 +31,8 @@ function lerp<N extends number>(
 	return add(scaled(v1, 1.0 - t), scaled(v2, t));
 }
 
+const BLACK = color(0, 0, 0);
+
 /**
  * Determine the color of the given ray
  *
@@ -51,7 +41,7 @@ function lerp<N extends number>(
  */
 function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 	if (depth <= 0) {
-		return color(0, 0, 0);
+		return BLACK;
 	}
 
 	const hit: Hit<3> = {
@@ -59,15 +49,28 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 		p: point3(0, 0, 0),
 		n: point3(0, 0, 1),
 		isFrontFace: false,
+		material: () => undefined,
+		// XXX: What's a good default here?
+		attenuation: 0.5,
 	};
 
 	// 0.0001: Avoid "Shadow Acne"
 	world(r, hit, 0.0001, hit.t);
 
 	if (Number.isFinite(hit.t)) {
-		const target = diffuse(hit.p, hit.n);
-		const diffuseRay = ray(hit.p, subtract(target, hit.p));
-		return scaled(rayColor(world, diffuseRay, depth - 1), 0.5);
+		if (!hit.material) {
+			throw new Error(`No material on hit`);
+		}
+
+		const scatteredRay = hit.material(r, hit.p, hit.n);
+		if (!scatteredRay) {
+			return BLACK;
+		}
+
+		// Follow this ray to its next hit, and only attenuate
+		// the result of that calculation.
+		const sourceColor = rayColor(world, scatteredRay, depth - 1);
+		return scaled(sourceColor, hit.attenuation);
 	}
 
 	// Background color
@@ -117,8 +120,8 @@ function main(out: Writable = process.stdout) {
 
 	// World
 	const world: Hittable<3> = scene(
-		sphere(point3(0, 0, -1), 0.5),
-		sphere(point3(0, -100.5, -1), 100)
+		sphere(point3(0, 0, -1), 0.5, diffuse(), 0.5),
+		sphere(point3(0, -100.5, -1), 100, diffuse(), 0.5)
 	);
 
 	// Camera

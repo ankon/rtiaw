@@ -1,9 +1,15 @@
 import { Hittable, setHitNormal } from './hittable';
+import { ScatterRay } from './material';
 import { at, direction, origin } from './ray';
 import { Point3 } from './vec3';
 import { subtract, dot, lengthSquared, unscaled } from './vector';
 
-export function sphere(center: Point3, radius: number): Hittable<3> {
+export function sphere(
+	center: Point3,
+	radius: number,
+	material: ScatterRay<3>,
+	attenuation: number
+): Hittable<3> {
 	return (r, hit, tMin, tMax) => {
 		const oc = subtract(origin(r), center);
 		const a = lengthSquared(direction(r));
@@ -32,6 +38,8 @@ export function sphere(center: Point3, radius: number): Hittable<3> {
 		hit.p = at(r, t);
 		const n = unscaled(subtract(hit.p, center), radius);
 		setHitNormal(hit, r, n);
+		hit.material = material;
+		hit.attenuation = attenuation;
 
 		return true;
 	};

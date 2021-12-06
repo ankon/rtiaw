@@ -1,3 +1,4 @@
+import { ScatterRay } from './material';
 import { direction, Ray } from './ray';
 import { dot, scaled, Vector } from './vector';
 
@@ -6,6 +7,10 @@ export interface Hit<N extends number> {
 	n: Vector<N>;
 	t: number;
 	isFrontFace: boolean;
+	/** The material that was hit */
+	material: ScatterRay<N>;
+	/** Attenuation caused by the material */
+	attenuation: number;
 }
 
 export type Hittable<N extends number> = (
