@@ -56,7 +56,8 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 		isFrontFace: false,
 	};
 
-	world(r, hit, 0, hit.t);
+	// 0.0001: Avoid "Shadow Acne"
+	world(r, hit, 0.0001, hit.t);
 
 	if (Number.isFinite(hit.t)) {
 		// Normal map: scaled(color(x(hit.n) + 1, y(hit.n) + 1, z(hit.n) + 1), 0.5)
