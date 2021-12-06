@@ -21,7 +21,7 @@ import {
 	Vector,
 } from './vector';
 
-const logger = makeLogger('index', process.stderr, DEBUG);
+const logger = makeLogger('rtiaw', process.stderr, DEBUG);
 
 /**
  * Linear blend/interpolate between `v1` and `v2`
