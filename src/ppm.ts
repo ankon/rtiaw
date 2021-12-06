@@ -38,18 +38,15 @@ export function ppm(
 			return height;
 		},
 		writeLine(line) {
-			out.write(
-				line
-					.map((color) =>
-						color
-							.map((c) => {
-								const gammaCorrected = gammaCorrect(c);
-								return Math.floor(255 * gammaCorrected);
-							})
-							.join(' ')
-					)
-					.join('\n')
-			);
+			for (let i = 0; i < line.length; i++) {
+				const c = line[i];
+				c.forEach((component) => {
+					const gammaCorrected = gammaCorrect(component);
+					out.write(String(Math.floor(255 * gammaCorrected)));
+					out.write(' ');
+				});
+				out.write('\n');
+			}
 			out.write('\n');
 		},
 		finish() {},
