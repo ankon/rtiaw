@@ -2,10 +2,11 @@ import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
 
 import { color, Color } from './color';
+import { Hit, Hittable } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
-import { at, direction, ray, Ray } from './ray';
-import { hitSphere } from './sphere';
+import { direction, ray, Ray } from './ray';
+import { sphere } from './sphere';
 import { point3, vec3, x, y, z } from './vec3';
 import { add, scaled, subtract, unit, unscaled, Vector } from './vector';
 
@@ -34,22 +35,28 @@ function lerp<N extends number>(
  * @returns
  */
 // FIXME: Effectively this is the "setup scene" + "trace the ray" function combined.
-function rayColor(r: Ray<3>): Color {
-	const center = point3(0, 0, -1);
-	let t = hitSphere(center, 0.5, r);
-	if (t > 0) {
-		const n = unit(subtract(at(r, t), center));
-		return scaled(color(x(n) + 1, y(n) + 1, z(n) + 1), 0.5);
+function rayColor(hittables: Hittable<3>[], r: Ray<3>): Color {
+	const hit: Hit<3> = {
+		t: Number.POSITIVE_INFINITY,
+		p: point3(0, 0, 0),
+		n: point3(0, 0, 1),
+		isFrontFace: false,
+	};
+	for (const hittable of hittables) {
+		hittable(r, 0, hit.t, hit);
+	}
+
+	if (Number.isFinite(hit.t)) {
+		return scaled(color(x(hit.n) + 1, y(hit.n) + 1, z(hit.n) + 1), 0.5);
 	}
 
 	// Background color
 	const background = unit(direction(r));
-	t = 0.5 * (y(background) + 1.0);
+	const t = 0.5 * (y(background) + 1.0);
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
-function render(image: ImageStream) {
-	// TODO: Scene setup
+function render(scene: Hittable<3>[], image: ImageStream) {
 	// Camera
 	const aspectRatio = image.width / image.height;
 
@@ -85,7 +92,7 @@ function render(image: ImageStream) {
 					scaled(origin, -1)
 				)
 			);
-			const color = rayColor(r);
+			const color = rayColor(scene, r);
 			line[i] = color;
 		}
 		image.writeLine(line);
@@ -103,7 +110,10 @@ function main(out: Writable = process.stdout) {
 		width: imageWidth,
 		height: imageHeight,
 	});
-	render(image);
+
+	const scene: Hittable<3>[] = [sphere(point3(0, 0, -1), 0.5)];
+
+	render(scene, image);
 }
 
 main(
