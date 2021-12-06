@@ -39,14 +39,14 @@ export function lengthSquared<N extends number>(v: Vector<N>): number {
 
 // Utilities
 
-export function add<N extends number>(v1: Vector<N>, v2: Vector<N>): Vector<N> {
-	return v1.map((e, i) => e + v2[i]);
+export function add<N extends number>(v: Vector<N>, ...other: Vector<N>[]): Vector<N> {
+	return v.map((e, i) => other.reduce((s, v) => s + v[i], e));
 }
 export function subtract<N extends number>(
-	v1: Vector<N>,
-	v2: Vector<N>
+	v: Vector<N>,
+	...other: Vector<N>[]
 ): Vector<N> {
-	return v1.map((e, i) => e - v2[i]);
+	return v.map((e, i) => e - other.reduce((s, v) => s + v[i], 0));
 }
 export function multiply<N extends number>(
 	v1: Vector<N>,
