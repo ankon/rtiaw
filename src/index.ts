@@ -1,23 +1,16 @@
 import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
+import { camera, CastRay } from './camera';
 
 import { color, Color } from './color';
 import { Hit, Hittable, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
-import { direction, ray, Ray } from './ray';
+import { direction, Ray } from './ray';
 import { sphere } from './sphere';
 import { random } from './utils';
-import { point3, vec3, x, y, z } from './vec3';
-import {
-	add,
-	scaled,
-	subtract,
-	translate,
-	unit,
-	unscaled,
-	Vector,
-} from './vector';
+import { point3, x, y, z } from './vec3';
+import { add, scaled, translate, unit, unscaled, Vector } from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
 
@@ -64,26 +57,10 @@ function rayColor(world: Hittable<3>, r: Ray<3>): Color {
 
 function render(
 	world: Hittable<3>,
+	castRay: CastRay<3>,
 	image: ImageStream,
 	{ samplesPerPixel = 20 } = {}
 ) {
-	// Camera
-	const aspectRatio = image.width / image.height;
-
-	const viewportHeight = 2.0;
-	const viewportWidth = aspectRatio * viewportHeight;
-	const focalLength = 1.0;
-
-	const origin = point3(0, 0, 0);
-	const horizontal = vec3(viewportWidth, 0, 0);
-	const vertical = vec3(0, viewportHeight, 0);
-	const lowerLeftCorner = subtract(
-		origin,
-		unscaled(horizontal, 2),
-		unscaled(vertical, 2),
-		vec3(0, 0, focalLength)
-	);
-
 	// Render line-by-line
 	// XXX: This is rendered with a decreasing y (i.e. "bottom up"), which might
 	//      be a bit confusing.
@@ -96,15 +73,7 @@ function render(
 				const u = (i + random()) / (image.width - 1);
 				const v = (j + random()) / (image.height - 1);
 
-				const r = ray(
-					origin,
-					add(
-						lowerLeftCorner,
-						scaled(horizontal, u),
-						scaled(vertical, v),
-						scaled(origin, -1)
-					)
-				);
+				const r = castRay(u, v);
 				translate(pixel, rayColor(world, r));
 			}
 			line[i] = unscaled(pixel, samplesPerPixel);
@@ -125,12 +94,18 @@ function main(out: Writable = process.stdout) {
 		height: imageHeight,
 	});
 
+	// World
 	const world: Hittable<3> = scene(
 		sphere(point3(0, 0, -1), 0.5),
 		sphere(point3(0, -100.5, -1), 100)
 	);
 
-	render(world, image);
+	// Camera
+	const viewportHeight = 2.0;
+	const viewportWidth = aspectRatio * viewportHeight;
+	const cam = camera(point3(0, 0, 0), { viewportWidth, viewportHeight });
+
+	render(world, cam, image);
 }
 
 main(
