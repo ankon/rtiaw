@@ -1,7 +1,10 @@
 import assert from 'assert';
 
 export type Vector<N extends number> = number[];
-export type Point3 = Vector<3>;
+
+export function vector<N extends number>(...e: number[]): Vector<N> {
+	return e;
+}
 
 export function negate<N extends number>(v: Vector<N>): Vector<N> {
 	return v.map((e) => -e);
@@ -52,6 +55,7 @@ export function multiply<N extends number>(
 	v1: Vector<N>,
 	v2: Vector<N>
 ): Vector<N> {
+	assert(v1.length === v2.length);
 	return v1.map((e, i) => e * v2[i]);
 }
 
@@ -63,19 +67,11 @@ export function unscaled<N extends number>(v: Vector<N>, n: number): Vector<N> {
 }
 
 export function dot<N extends number>(v1: Vector<N>, v2: Vector<N>): number {
+	assert(v1.length === v2.length);
 	return v1.map((e, i) => e * v2[i]).reduce((r, e) => r + e, 0);
 }
 export function unit<N extends number>(v: Vector<N>): Vector<N> {
 	return unscaled(v, length(v));
-}
-
-// TODO: Is the general formula something like v1[(rotate indices reverse) ... 1, 2, 0]*v2[(rotate indices) ... 2, 0, 1] - (other way around)?
-export function cross(v1: Vector<3>, v2: Vector<3>): Vector<3> {
-	return [
-		v1[1] * v2[2] - v1[2] * v2[1],
-		v1[2] * v2[0] - v1[0] * v2[2],
-		v1[0] * v2[1] - v1[1] * v2[0],
-	];
 }
 
 export function vectorToString<N extends number>(v: Vector<N>): string {

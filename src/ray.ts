@@ -2,6 +2,10 @@ import { add, scaled, Vector } from './vector';
 
 export type Ray<N extends number> = [origin: Vector<N>, direction: Vector<N>];
 
+export function ray<N extends number>(origin: Vector<N>, direction: Vector<N>): Ray<N> {
+	return [origin, direction];
+}
+
 export function origin<N extends number>(r: Ray<N>): Vector<N> {
 	return r[0];
 }
