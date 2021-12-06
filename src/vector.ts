@@ -87,6 +87,11 @@ export function unit<N extends number>(v: Vector<N>): Vector<N> {
 	return unscaled(v, length(v));
 }
 
+export function nearZero<N extends number>(v: Vector<N>): boolean {
+	const s = 1e-8;
+	return v.every((e) => Math.abs(e) < s);
+}
+
 export function vectorToString<N extends number>(v: Vector<N>): string {
 	return v.join(' ');
 }

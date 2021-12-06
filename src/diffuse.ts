@@ -2,7 +2,7 @@ import { ScatterRay } from './material';
 import { ray } from './ray';
 import { randomVectorInUnitSphere } from './utils';
 import { Point3 } from './vec3';
-import { Vector, add, unit, dot, negate, subtract } from './vector';
+import { Vector, add, unit, dot, negate, subtract, nearZero } from './vector';
 
 export function lazyHackDiffuse(at: Point3, n: Vector<3>): Vector<3> {
 	const randomVector = randomVectorInUnitSphere(3);
@@ -38,6 +38,13 @@ export function diffuse(
 ): ScatterRay<3> {
 	return (r, at, n) => {
 		const target = calculateDiffuseTarget(at, n);
-		return ray(at, subtract(target, at));
+		let d = subtract(target, at);
+		if (nearZero(d)) {
+			d = n;
+		}
+
+		// TODO: We probably want the attenuation here?
+
+		return ray(at, d);
 	};
 }
