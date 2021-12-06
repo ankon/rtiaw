@@ -12,7 +12,11 @@
                 "<node_internals>/**"
             ],
             "program": "build/index.js",
-            "preLaunchTask": "npm: build"
+            "args": [
+                "test.ppm"
+            ],
+            "preLaunchTask": "npm: build",
+            "outputCapture": "std"
         }
     ]
 }
