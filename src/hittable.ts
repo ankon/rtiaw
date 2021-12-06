@@ -15,6 +15,12 @@ export type Hittable<N extends number> = (
 	hit: Hit<N>
 ) => void;
 
+/**
+ *
+ * @param hit
+ * @param r
+ * @param n The normal pointing outwards from the face. This should be unit-length.
+ */
 export function setHitNormal<N extends number>(
 	hit: Hit<N>,
 	r: Ray<N>,

@@ -1,7 +1,7 @@
 import { Hittable, setHitNormal } from './hittable';
 import { at, direction, origin } from './ray';
 import { Point3 } from './vec3';
-import { subtract, dot, lengthSquared, unit } from './vector';
+import { subtract, dot, lengthSquared, unscaled } from './vector';
 
 export function sphere(center: Point3, radius: number): Hittable<3> {
 	return (r, tMin, tMax, hit) => {
@@ -18,17 +18,19 @@ export function sphere(center: Point3, radius: number): Hittable<3> {
 		const sqrtd = Math.sqrt(discriminant);
 		let t = (-half_b - sqrtd) / a;
 		if (t < tMin || t > tMax) {
-			// Pick the other root of the function
+			// Try the other root of the function
 			t = (-half_b + sqrtd) / a;
-		}
-		if (t < tMin || t > tMax) {
-			// Still out of range, ignore
-			return;
+			if (t < tMin || t > tMax) {
+				// Still out of range, ignore
+				return;
+			}
 		}
 
-		// Update the hit
+		// Update the hit: For a value of t along the ray
+		// we hit this sphere, at the point p.
 		hit.t = t;
 		hit.p = at(r, t);
-		setHitNormal(hit, r, unit(subtract(hit.p, center)));
+		const n = unscaled(subtract(hit.p, center), radius);
+		setHitNormal(hit, r, n);
 	};
 }
