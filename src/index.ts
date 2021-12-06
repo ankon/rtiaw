@@ -5,6 +5,7 @@ import { color, Color } from './color';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
 import { direction, ray, Ray } from './ray';
+import { hitSphere } from './sphere';
 import { point3, vec3 } from './vec3';
 import { add, scaled, subtract, unit, unscaled, Vector } from './vector';
 
@@ -27,6 +28,11 @@ function lerp<N extends number>(
 }
 
 function rayColor(r: Ray<3>): Color {
+	if (hitSphere(point3(0, 0, -1), 0.5, r)) {
+		return color(1, 0, 0);
+	}
+
+	// Background color
 	const [, y] = unit(direction(r));
 	const t = 0.5 * (y + 1.0);
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
