@@ -137,12 +137,12 @@ function main(out: Writable = process.stdout) {
 		),
 		// Left
 		named(
-			sphere(point3(-1.0, 0, -1), 0.5, metal(color(0.8, 0.8, 0.8))),
+			sphere(point3(-1.0, 0, -1), 0.5, metal(color(0.8, 0.8, 0.8), 0.3)),
 			'left'
 		),
 		// Right
 		named(
-			sphere(point3(1.0, 0, -1), 0.5, metal(color(0.8, 0.6, 0.2))),
+			sphere(point3(1.0, 0, -1), 0.5, metal(color(0.8, 0.6, 0.2), 0.1)),
 			'right'
 		)
 	);
