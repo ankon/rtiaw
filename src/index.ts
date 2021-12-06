@@ -11,7 +11,15 @@ import { direction, Ray } from './ray';
 import { sphere } from './sphere';
 import { random } from './utils';
 import { point3, y } from './vec3';
-import { add, scaled, translate, unit, unscaled, Vector } from './vector';
+import {
+	add,
+	multiply,
+	scaled,
+	translate,
+	unit,
+	unscaled,
+	Vector,
+} from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
 
@@ -32,6 +40,7 @@ function lerp<N extends number>(
 }
 
 const BLACK = color(0, 0, 0);
+const GRAY_50 = color(0.5, 0.5, 0.5);
 
 /**
  * Determine the color of the given ray
@@ -50,8 +59,6 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 		n: point3(0, 0, 1),
 		isFrontFace: false,
 		material: () => undefined,
-		// XXX: What's a good default here?
-		attenuation: 0.5,
 	};
 
 	// 0.0001: Avoid "Shadow Acne"
@@ -62,15 +69,17 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 			throw new Error(`No material on hit`);
 		}
 
-		const scatteredRay = hit.material(r, hit.p, hit.n);
-		if (!scatteredRay) {
+		const m = hit.material(r, hit.p, hit.n);
+		if (!m) {
 			return BLACK;
 		}
 
-		// Follow this ray to its next hit, and only attenuate
-		// the result of that calculation.
-		const sourceColor = rayColor(world, scatteredRay, depth - 1);
-		return scaled(sourceColor, hit.attenuation);
+		// Follow this ray to its next hit
+		const sourceColor = rayColor(world, m.scatteredRay, depth - 1);
+
+		// Combine the source color of the ray with the attenuation of the material
+		// TODO: This `multiply` is something one would want to configure.
+		return multiply(sourceColor, m.attenuation);
 	}
 
 	// Background color
@@ -120,8 +129,8 @@ function main(out: Writable = process.stdout) {
 
 	// World
 	const world: Hittable<3> = scene(
-		sphere(point3(0, 0, -1), 0.5, diffuse(), 0.5),
-		sphere(point3(0, -100.5, -1), 100, diffuse(), 0.5)
+		sphere(point3(0, 0, -1), 0.5, diffuse(GRAY_50)),
+		sphere(point3(0, -100.5, -1), 100, diffuse(color(0, 1, 0)))
 	);
 
 	// Camera

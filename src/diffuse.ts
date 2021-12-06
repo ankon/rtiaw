@@ -1,4 +1,5 @@
-import { ScatterRay } from './material';
+import { Color } from './color';
+import { Material } from './material';
 import { ray } from './ray';
 import { randomVectorInUnitSphere } from './utils';
 import { Point3 } from './vec3';
@@ -30,12 +31,14 @@ export function hemisphericalScatteringDiffuse(
 /**
  * Diffuse material: Sends the ray further in a random direction from the point where it hit the world.
  *
+ * @param albedo the natural "color" of this material
  * @param calculateDiffuseTarget
  * @returns
  */
 export function diffuse(
+	albedo: Color,
 	calculateDiffuseTarget = lambertianDiffuse
-): ScatterRay<3> {
+): Material<3> {
 	return (r, at, n) => {
 		const target = calculateDiffuseTarget(at, n);
 		let d = subtract(target, at);
@@ -43,8 +46,9 @@ export function diffuse(
 			d = n;
 		}
 
-		// TODO: We probably want the attenuation here?
-
-		return ray(at, d);
+		return {
+			attenuation: albedo,
+			scatteredRay: ray(at, d),
+		};
 	};
 }
