@@ -20,6 +20,7 @@ import {
 	translate,
 	unit,
 	unscaled,
+	vector,
 	Vector,
 } from './vector';
 
@@ -196,9 +197,7 @@ function main(out: Writable = process.stdout) {
 	);
 
 	// Camera
-	const viewportHeight = 2.0;
-	const viewportWidth = aspectRatio * viewportHeight;
-	const cam = camera(point3(0, 0, 0), { viewportWidth, viewportHeight });
+	const cam = camera(vector(-2, 2, 1), vector(0, 0, -1), 90, { aspectRatio });
 
 	const samplesPerPixel = 20;
 	const maxDepth = 20;

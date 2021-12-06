@@ -1,5 +1,10 @@
 import { lengthSquared, randomVector, Vector } from './vector';
 
+
+export function degreesToRadians(degrees: number): number {
+	return (degrees * Math.PI) / 180.0;
+}
+
 export function random(min = 0, max = 1) {
 	return Math.random() * (max - min) + min;
 }
