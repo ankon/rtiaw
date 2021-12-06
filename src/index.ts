@@ -3,13 +3,14 @@ import { Writable } from 'stream';
 import { camera, CastRay } from './camera';
 
 import { color, Color } from './color';
+import { lambertianDiffuse } from './diffuse';
 import { Hit, Hittable, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
 import { direction, ray, Ray } from './ray';
 import { sphere } from './sphere';
-import { random, randomVectorInUnitSphere } from './utils';
-import { point3, y } from './vec3';
+import { random } from './utils';
+import { Point3, point3, y } from './vec3';
 import {
 	add,
 	scaled,
@@ -21,6 +22,10 @@ import {
 } from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
+
+// Diffuse: Send the ray further in a random direction from the point where it hit
+// the world.
+const diffuse: (at: Point3, n: Vector<3>) => Vector<3> = lambertianDiffuse;
 
 /**
  * Linear blend/interpolate between `v1` and `v2`
@@ -60,11 +65,7 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 	world(r, hit, 0.0001, hit.t);
 
 	if (Number.isFinite(hit.t)) {
-		// Normal map: scaled(color(x(hit.n) + 1, y(hit.n) + 1, z(hit.n) + 1), 0.5)
-
-		// Diffuse: Send the ray further in a random direction from the point where it hit
-		// the world.
-		const target = add(hit.p, hit.n, randomVectorInUnitSphere(3));
+		const target = diffuse(hit.p, hit.n);
 		const diffuseRay = ray(hit.p, subtract(target, hit.p));
 		return scaled(rayColor(world, diffuseRay, depth - 1), 0.5);
 	}
