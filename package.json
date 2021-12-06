@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "test": "echo 'No tests' >&2",
+    "render": "npm run build && node build/index.js > test.ppm",
     "build": "tsc -p tsconfig.json",
     "build:watch": "npm run build -- --watch"
   },
