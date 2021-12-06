@@ -5,17 +5,30 @@ import { color, Color, colorToString } from './color';
 import { DEBUG, makeLogger } from './logger';
 import { direction, ray, Ray } from './ray';
 import { point3, vec3 } from './vec3';
-import { add, scaled, subtract, unit, unscaled } from './vector';
+import { add, scaled, subtract, unit, unscaled, Vector } from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
+
+/**
+ * Linear blend/interpolate between `v1` and `v2`
+ *
+ * @param v1
+ * @param v2
+ * @param t
+ * @returns
+ */
+function lerp<N extends number>(
+	v1: Vector<N>,
+	v2: Vector<N>,
+	t: number
+): Vector<N> {
+	return add(scaled(v1, 1.0 - t), scaled(v2, t));
+}
 
 function rayColor(r: Ray<3>): Color {
 	const [, y] = unit(direction(r));
 	const t = 0.5 * (y + 1.0);
-	return add(
-		scaled(color(1.0, 1.0, 1.0), 1.0 - t),
-		scaled(color(0.5, 0.7, 1.0), t)
-	);
+	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
 function createPPM(
