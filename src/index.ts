@@ -53,18 +53,9 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 		return BLACK;
 	}
 
-	const hit: Hit<3> = {
-		t: Number.POSITIVE_INFINITY,
-		p: point3(0, 0, 0),
-		n: point3(0, 0, 1),
-		isFrontFace: false,
-		material: () => undefined,
-	};
-
 	// 0.0001: Avoid "Shadow Acne"
-	world(r, hit, 0.0001, hit.t);
-
-	if (Number.isFinite(hit.t)) {
+	const hit = world(r, 0.0001, Number.POSITIVE_INFINITY);
+	if (hit) {
 		if (!hit.material) {
 			throw new Error(`No material on hit`);
 		}

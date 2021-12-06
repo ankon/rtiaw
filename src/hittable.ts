@@ -11,36 +11,51 @@ export interface Hit<N extends number> {
 	material: Material<N>;
 }
 
-export type Hittable<N extends number> = (
-	r: Ray<N>,
-	hit: Hit<N>,
-	tMin: number,
-	tMax: number
-) => boolean;
-
 /**
  *
- * @param hit
  * @param r
+ * @param t
+ * @param p
  * @param n The normal pointing outwards from the face. This should be unit-length.
+ * @param material
  */
-export function setHitNormal<N extends number>(
-	hit: Hit<N>,
+export function hit<N extends number>(
 	r: Ray<N>,
-	n: Vector<N>
-): void {
-	hit.isFrontFace = dot(direction(r), n) < 0;
-	hit.n = hit.isFrontFace ? n : scaled(n, -1);
+	t: number,
+	p: Vector<N>,
+	n: Vector<N>,
+	material: Material<N>
+): Hit<N> {
+	const isFrontFace = dot(direction(r), n) < 0;
+	return {
+		t,
+		p,
+		n: isFrontFace ? n : scaled(n, -1),
+		isFrontFace,
+		material,
+	};
 }
+
+export type Hittable<N extends number> = (
+	r: Ray<N>,
+	tMin: number,
+	tMax: number
+) => Hit<N> | undefined;
 
 export function scene<N extends number>(
 	...hittables: Hittable<N>[]
 ): Hittable<N> {
-	return (r, hit, tMin, tMax) => {
-		let result = false;
+	return (r, tMin, tMax) => {
+		let closest: Hit<N> | undefined;
 		for (const hittable of hittables) {
-			result ||= hittable(r, hit, tMin, Math.min(hit.t, tMax));
+			const max = closest ? closest.t : tMax;
+			const hit = hittable(r, tMin, max);
+			if (hit) {
+				if (!closest || hit.t < closest.t) {
+					closest = hit;
+				}
+			}
 		}
-		return result;
+		return closest;
 	};
 }
