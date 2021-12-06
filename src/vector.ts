@@ -92,6 +92,10 @@ export function nearZero<N extends number>(v: Vector<N>): boolean {
 	return v.every((e) => Math.abs(e) < s);
 }
 
+export function reflect<N extends number>(v: Vector<N>, n: Vector<N>) {
+	return subtract(v, scaled(n, 2 * dot(v, n)));
+}
+
 export function vectorToString<N extends number>(v: Vector<N>): string {
 	return v.join(' ');
 }
