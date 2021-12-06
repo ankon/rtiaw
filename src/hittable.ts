@@ -10,10 +10,10 @@ export interface Hit<N extends number> {
 
 export type Hittable<N extends number> = (
 	r: Ray<N>,
+	hit: Hit<N>,
 	tMin: number,
-	tMax: number,
-	hit: Hit<N>
-) => void;
+	tMax: number
+) => boolean;
 
 /**
  *
@@ -28,4 +28,16 @@ export function setHitNormal<N extends number>(
 ): void {
 	hit.isFrontFace = dot(direction(r), n) < 0;
 	hit.n = hit.isFrontFace ? n : scaled(n, -1);
+}
+
+export function scene<N extends number>(
+	...hittables: Hittable<N>[]
+): Hittable<N> {
+	return (r, hit, tMin, tMax) => {
+		let result = false;
+		for (const hittable of hittables) {
+			result ||= hittable(r, hit, tMin, Math.min(hit.t, tMax));
+		}
+		return result;
+	};
 }

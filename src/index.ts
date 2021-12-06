@@ -2,7 +2,7 @@ import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
 
 import { color, Color } from './color';
-import { Hit, Hittable } from './hittable';
+import { Hit, Hittable, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
 import { direction, ray, Ray } from './ray';
@@ -34,17 +34,14 @@ function lerp<N extends number>(
  * @param r
  * @returns
  */
-// FIXME: Effectively this is the "setup scene" + "trace the ray" function combined.
-function rayColor(hittables: Hittable<3>[], r: Ray<3>): Color {
+function rayColor(world: Hittable<3>, r: Ray<3>): Color {
 	const hit: Hit<3> = {
 		t: Number.POSITIVE_INFINITY,
 		p: point3(0, 0, 0),
 		n: point3(0, 0, 1),
 		isFrontFace: false,
 	};
-	for (const hittable of hittables) {
-		hittable(r, 0, hit.t, hit);
-	}
+	world(r, hit, 0, hit.t);
 
 	if (Number.isFinite(hit.t)) {
 		return scaled(color(x(hit.n) + 1, y(hit.n) + 1, z(hit.n) + 1), 0.5);
@@ -56,7 +53,7 @@ function rayColor(hittables: Hittable<3>[], r: Ray<3>): Color {
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
-function render(scene: Hittable<3>[], image: ImageStream) {
+function render(world: Hittable<3>, image: ImageStream) {
 	// Camera
 	const aspectRatio = image.width / image.height;
 
@@ -92,7 +89,7 @@ function render(scene: Hittable<3>[], image: ImageStream) {
 					scaled(origin, -1)
 				)
 			);
-			const color = rayColor(scene, r);
+			const color = rayColor(world, r);
 			line[i] = color;
 		}
 		image.writeLine(line);
@@ -111,9 +108,12 @@ function main(out: Writable = process.stdout) {
 		height: imageHeight,
 	});
 
-	const scene: Hittable<3>[] = [sphere(point3(0, 0, -1), 0.5)];
+	const world: Hittable<3> = scene(
+		sphere(point3(0, 0, -1), 0.5),
+		sphere(point3(0, -100.5, -1), 100)
+	);
 
-	render(scene, image);
+	render(world, image);
 }
 
 main(

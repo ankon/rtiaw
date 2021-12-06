@@ -4,7 +4,7 @@ import { Point3 } from './vec3';
 import { subtract, dot, lengthSquared, unscaled } from './vector';
 
 export function sphere(center: Point3, radius: number): Hittable<3> {
-	return (r, tMin, tMax, hit) => {
+	return (r, hit, tMin, tMax) => {
 		const oc = subtract(origin(r), center);
 		const a = lengthSquared(direction(r));
 		const half_b = dot(oc, direction(r));
@@ -12,7 +12,7 @@ export function sphere(center: Point3, radius: number): Hittable<3> {
 		const discriminant = half_b * half_b - a * c;
 		if (discriminant < 0) {
 			// Not hitting anything
-			return;
+			return false;
 		}
 
 		const sqrtd = Math.sqrt(discriminant);
@@ -22,7 +22,7 @@ export function sphere(center: Point3, radius: number): Hittable<3> {
 			t = (-half_b + sqrtd) / a;
 			if (t < tMin || t > tMax) {
 				// Still out of range, ignore
-				return;
+				return false;
 			}
 		}
 
@@ -32,5 +32,7 @@ export function sphere(center: Point3, radius: number): Hittable<3> {
 		hit.p = at(r, t);
 		const n = unscaled(subtract(hit.p, center), radius);
 		setHitNormal(hit, r, n);
+
+		return true;
 	};
 }
