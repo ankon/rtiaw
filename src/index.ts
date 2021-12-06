@@ -3,6 +3,7 @@ import { Writable } from 'stream';
 import { camera, CastRay } from './camera';
 
 import { color, Color } from './color';
+import { dielectric } from './dielectric';
 import { diffuse } from './diffuse';
 import { Hittable, named, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
@@ -60,7 +61,7 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 			throw new Error(`No material on hit`);
 		}
 
-		const m = hit.material(r, hit.p, hit.n);
+		const m = hit.material(r, hit.p, hit.n, hit.isFrontFace);
 		if (!m) {
 			return BLACK;
 		}
@@ -105,7 +106,7 @@ function heatColor(
 			throw new Error(`No material on hit`);
 		}
 
-		const m = hit.material(r, hit.p, hit.n);
+		const m = hit.material(r, hit.p, hit.n, hit.isFrontFace);
 		if (!m) {
 			return color((maxDepth - depth) / maxDepth, 0, 0);
 		}
@@ -180,8 +181,12 @@ function main(out: Writable = process.stdout) {
 		),
 		// Left
 		named(
-			sphere(point3(-1.0, 0, -1), 0.5, metal(color(0.8, 0.8, 0.8), 0.3)),
+			sphere(point3(-1.0, 0, -1), 0.5, dielectric(1.5, color(1, 1, 1))),
 			'left'
+		),
+		named(
+			sphere(point3(-1.0, 0, -1), -0.45, dielectric(1.5, color(1, 1, 1))),
+			'left_inner'
 		),
 		// Right
 		named(

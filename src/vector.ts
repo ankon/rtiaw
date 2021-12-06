@@ -96,6 +96,20 @@ export function reflect<N extends number>(v: Vector<N>, n: Vector<N>) {
 	return subtract(v, scaled(n, 2 * dot(v, n)));
 }
 
+export function refract<N extends number>(
+	v: Vector<N>,
+	n: Vector<N>,
+	etaIOverEtaT: number
+): Vector<N> {
+	const cosTheta = Math.min(dot(negate(v), n), 1.0);
+	const rPerpendicular = scaled(add(v, scaled(n, cosTheta)), etaIOverEtaT);
+	const rParallel = scaled(
+		n,
+		-Math.sqrt(Math.abs(1.0 - lengthSquared(rPerpendicular)))
+	);
+	return add(rPerpendicular, rParallel);
+}
+
 export function vectorToString<N extends number>(v: Vector<N>): string {
 	return v.join(' ');
 }
