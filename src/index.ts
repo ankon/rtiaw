@@ -4,9 +4,9 @@ import { Writable } from 'stream';
 import { color, Color } from './color';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
-import { direction, ray, Ray } from './ray';
+import { at, direction, ray, Ray } from './ray';
 import { hitSphere } from './sphere';
-import { point3, vec3 } from './vec3';
+import { point3, vec3, x, y, z } from './vec3';
 import { add, scaled, subtract, unit, unscaled, Vector } from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
@@ -27,14 +27,24 @@ function lerp<N extends number>(
 	return add(scaled(v1, 1.0 - t), scaled(v2, t));
 }
 
+/**
+ * Determine the color of the given ray
+ *
+ * @param r
+ * @returns
+ */
+// FIXME: Effectively this is the "setup scene" + "trace the ray" function combined.
 function rayColor(r: Ray<3>): Color {
-	if (hitSphere(point3(0, 0, -1), 0.5, r)) {
-		return color(1, 0, 0);
+	const center = point3(0, 0, -1);
+	let t = hitSphere(center, 0.5, r);
+	if (t > 0) {
+		const n = unit(subtract(at(r, t), center));
+		return scaled(color(x(n) + 1, y(n) + 1, z(n) + 1), 0.5);
 	}
 
 	// Background color
-	const [, y] = unit(direction(r));
-	const t = 0.5 * (y + 1.0);
+	const background = unit(direction(r));
+	t = 0.5 * (y(background) + 1.0);
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
