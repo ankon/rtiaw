@@ -177,7 +177,7 @@ function main(out: Writable = process.stdout) {
 		),
 		// Center
 		named(
-			sphere(point3(0, 0, -1), 0.5, diffuse(color(0.7, 0.3, 0.3))),
+			sphere(point3(0, 0, -1), 0.5, diffuse(color(0.1, 0.2, 0.5))),
 			'center'
 		),
 		// Left
