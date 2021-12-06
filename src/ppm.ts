@@ -13,15 +13,23 @@ export interface PPMOptions {
 	width: number;
 	height: number;
 	maxColor?: 255;
+	gamma?: number;
 }
+
 export function ppm(
 	out: Writable,
-	{ width, height, maxColor = 255 }: PPMOptions
+	{ width, height, maxColor = 255, gamma = 2.0 }: PPMOptions
 ): ImageStream {
 	out.write(`P3\n`);
 	out.write(`${width} ${height}\n`);
 	out.write(`${maxColor}\n`);
 
+	const gammaCorrect: (c: number) => number =
+		gamma === 1
+			? (c) => c
+			: gamma === 2
+			? (c) => Math.sqrt(c)
+			: (c) => Math.pow(c, 1 / gamma);
 	return {
 		get width() {
 			return width;
@@ -33,7 +41,12 @@ export function ppm(
 			out.write(
 				line
 					.map((color) =>
-						color.map((c) => Math.floor(255 * c)).join(' ')
+						color
+							.map((c) => {
+								const gammaCorrected = gammaCorrect(c);
+								return Math.floor(255 * gammaCorrected);
+							})
+							.join(' ')
 					)
 					.join('\n')
 			);
