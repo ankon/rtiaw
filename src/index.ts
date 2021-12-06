@@ -7,8 +7,17 @@ import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
 import { direction, ray, Ray } from './ray';
 import { sphere } from './sphere';
+import { random } from './utils';
 import { point3, vec3, x, y, z } from './vec3';
-import { add, scaled, subtract, unit, unscaled, Vector } from './vector';
+import {
+	add,
+	scaled,
+	subtract,
+	translate,
+	unit,
+	unscaled,
+	Vector,
+} from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
 
@@ -53,7 +62,11 @@ function rayColor(world: Hittable<3>, r: Ray<3>): Color {
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
-function render(world: Hittable<3>, image: ImageStream) {
+function render(
+	world: Hittable<3>,
+	image: ImageStream,
+	{ samplesPerPixel = 20 } = {}
+) {
 	// Camera
 	const aspectRatio = image.width / image.height;
 
@@ -78,19 +91,23 @@ function render(world: Hittable<3>, image: ImageStream) {
 	for (let j = image.height - 1; j >= 0; j--) {
 		logger.debug(`Remaining ${j}`);
 		for (let i = 0; i < image.width; i++) {
-			const u = i / (image.width - 1);
-			const v = j / (image.height - 1);
-			const r = ray(
-				origin,
-				add(
-					lowerLeftCorner,
-					scaled(horizontal, u),
-					scaled(vertical, v),
-					scaled(origin, -1)
-				)
-			);
-			const color = rayColor(world, r);
-			line[i] = color;
+			const pixel = color(0, 0, 0);
+			for (let s = 0; s < samplesPerPixel; s++) {
+				const u = (i + random()) / (image.width - 1);
+				const v = (j + random()) / (image.height - 1);
+
+				const r = ray(
+					origin,
+					add(
+						lowerLeftCorner,
+						scaled(horizontal, u),
+						scaled(vertical, v),
+						scaled(origin, -1)
+					)
+				);
+				translate(pixel, rayColor(world, r));
+			}
+			line[i] = unscaled(pixel, samplesPerPixel);
 		}
 		image.writeLine(line);
 	}
