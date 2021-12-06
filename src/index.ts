@@ -88,11 +88,16 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
+interface RenderOptions {
+	samplesPerPixel: number;
+	maxDepth: number;
+}
+
 function render(
 	world: Hittable<3>,
 	castRay: CastRay<3>,
 	image: ImageStream,
-	{ samplesPerPixel = 20, maxDepth = 50 } = {}
+	{ samplesPerPixel = 1, maxDepth = 1 }: Partial<RenderOptions>
 ) {
 	// Render line-by-line
 	// XXX: This is rendered with a decreasing y (i.e. "bottom up"), which might
@@ -138,7 +143,10 @@ function main(out: Writable = process.stdout) {
 	const viewportWidth = aspectRatio * viewportHeight;
 	const cam = camera(point3(0, 0, 0), { viewportWidth, viewportHeight });
 
-	render(world, cam, image);
+	render(world, cam, image, {
+		samplesPerPixel: 20,
+		maxDepth: 20,
+	});
 }
 
 main(
