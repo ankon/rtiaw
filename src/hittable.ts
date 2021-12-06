@@ -59,3 +59,17 @@ export function scene<N extends number>(
 		return closest;
 	};
 }
+
+export function named<N extends number>(
+	hittable: Hittable<N>,
+	name: string
+): Hittable<N> {
+	return (r, tMin, tMax) => {
+		const result = hittable(r, tMin, tMax);
+		if (!result) {
+			return undefined;
+		}
+
+		return { ...result, name };
+	};
+}

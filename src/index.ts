@@ -4,8 +4,9 @@ import { camera, CastRay } from './camera';
 
 import { color, Color } from './color';
 import { diffuse } from './diffuse';
-import { Hit, Hittable, scene } from './hittable';
+import { Hittable, named, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
+import { metal } from './metal';
 import { ImageStream, ppm } from './ppm';
 import { direction, Ray } from './ray';
 import { sphere } from './sphere';
@@ -40,7 +41,6 @@ function lerp<N extends number>(
 }
 
 const BLACK = color(0, 0, 0);
-const GRAY_50 = color(0.5, 0.5, 0.5);
 
 /**
  * Determine the color of the given ray
@@ -125,8 +125,26 @@ function main(out: Writable = process.stdout) {
 
 	// World
 	const world: Hittable<3> = scene(
-		sphere(point3(0, 0, -1), 0.5, diffuse(GRAY_50)),
-		sphere(point3(0, -100.5, -1), 100, diffuse(color(0, 1, 0)))
+		// Ground
+		named(
+			sphere(point3(0, -100.5, -1), 100, diffuse(color(0.8, 0.8, 0))),
+			'ground'
+		),
+		// Center
+		named(
+			sphere(point3(0, 0, -1), 0.5, diffuse(color(0.7, 0.3, 0.3))),
+			'center'
+		),
+		// Left
+		named(
+			sphere(point3(-1.0, 0, -1), 0.5, metal(color(0.8, 0.8, 0.8))),
+			'left'
+		),
+		// Right
+		named(
+			sphere(point3(1.0, 0, -1), 0.5, metal(color(0.8, 0.6, 0.2))),
+			'right'
+		)
 	);
 
 	// Camera
