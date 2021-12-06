@@ -79,16 +79,59 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
 }
 
+/**
+ * Tracer for debugging to show how deep we went
+ *
+ * @param world
+ * @param r
+ * @param maxDepth
+ * @param depth
+ * @returns
+ */
+function heatColor(
+	world: Hittable<3>,
+	r: Ray<3>,
+	maxDepth: number,
+	depth: number
+): Color {
+	if (depth <= 0) {
+		return color(1, 0, 0);
+	}
+
+	// 0.0001: Avoid "Shadow Acne"
+	const hit = world(r, 0.0001, Number.POSITIVE_INFINITY);
+	if (hit) {
+		if (!hit.material) {
+			throw new Error(`No material on hit`);
+		}
+
+		const m = hit.material(r, hit.p, hit.n);
+		if (!m) {
+			return color((maxDepth - depth) / maxDepth, 0, 0);
+		}
+
+		// Let the color pass through unchanged
+		return heatColor(world, m.scatteredRay, maxDepth, depth - 1);
+	}
+
+	return color((maxDepth - depth) / maxDepth, 0, 0);
+}
+
 interface RenderOptions {
 	samplesPerPixel: number;
 	maxDepth: number;
+	trace: (world: Hittable<3>, r: Ray<3>, depth: number) => Color;
 }
 
 function render(
 	world: Hittable<3>,
 	castRay: CastRay<3>,
 	image: ImageStream,
-	{ samplesPerPixel = 1, maxDepth = 1 }: Partial<RenderOptions>
+	{
+		samplesPerPixel = 1,
+		maxDepth = 1,
+		trace = rayColor,
+	}: Partial<RenderOptions>
 ) {
 	// Render line-by-line
 	// XXX: This is rendered with a decreasing y (i.e. "bottom up"), which might
@@ -103,7 +146,7 @@ function render(
 				const v = (j + random()) / (image.height - 1);
 
 				const r = castRay(u, v);
-				translate(pixel, rayColor(world, r, maxDepth));
+				translate(pixel, trace(world, r, maxDepth));
 			}
 			line[i] = unscaled(pixel, samplesPerPixel);
 		}
@@ -152,9 +195,15 @@ function main(out: Writable = process.stdout) {
 	const viewportWidth = aspectRatio * viewportHeight;
 	const cam = camera(point3(0, 0, 0), { viewportWidth, viewportHeight });
 
+	const samplesPerPixel = 20;
+	const maxDepth = 20;
 	render(world, cam, image, {
-		samplesPerPixel: 20,
-		maxDepth: 20,
+		samplesPerPixel,
+		maxDepth,
+		trace:
+			process.env.DEBUG ?? false
+				? (world, r, depth) => heatColor(world, r, maxDepth, depth)
+				: rayColor,
 	});
 }
 
