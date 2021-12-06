@@ -11,6 +11,7 @@ export function z(p: Vector<3>): number {
 	return p[2];
 }
 
+/** @deprecated Use `vector` directly */
 export function vec3(x: number, y: number, z: number): Vector<3> {
 	return vector(x, y, z);
 }
