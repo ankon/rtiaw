@@ -6,11 +6,19 @@ import { color, Color } from './color';
 import { Hit, Hittable, scene } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
-import { direction, Ray } from './ray';
+import { direction, ray, Ray } from './ray';
 import { sphere } from './sphere';
-import { random } from './utils';
-import { point3, x, y, z } from './vec3';
-import { add, scaled, translate, unit, unscaled, Vector } from './vector';
+import { random, randomVectorInUnitSphere } from './utils';
+import { point3, y } from './vec3';
+import {
+	add,
+	scaled,
+	subtract,
+	translate,
+	unit,
+	unscaled,
+	Vector,
+} from './vector';
 
 const logger = makeLogger('index', process.stderr, DEBUG);
 
@@ -36,17 +44,28 @@ function lerp<N extends number>(
  * @param r
  * @returns
  */
-function rayColor(world: Hittable<3>, r: Ray<3>): Color {
+function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
+	if (depth <= 0) {
+		return color(0, 0, 0);
+	}
+
 	const hit: Hit<3> = {
 		t: Number.POSITIVE_INFINITY,
 		p: point3(0, 0, 0),
 		n: point3(0, 0, 1),
 		isFrontFace: false,
 	};
+
 	world(r, hit, 0, hit.t);
 
 	if (Number.isFinite(hit.t)) {
-		return scaled(color(x(hit.n) + 1, y(hit.n) + 1, z(hit.n) + 1), 0.5);
+		// Normal map: scaled(color(x(hit.n) + 1, y(hit.n) + 1, z(hit.n) + 1), 0.5)
+
+		// Diffuse: Send the ray further in a random direction from the point where it hit
+		// the world.
+		const target = add(hit.p, hit.n, randomVectorInUnitSphere(3));
+		const diffuseRay = ray(hit.p, subtract(target, hit.p));
+		return scaled(rayColor(world, diffuseRay, depth - 1), 0.5);
 	}
 
 	// Background color
@@ -59,7 +78,7 @@ function render(
 	world: Hittable<3>,
 	castRay: CastRay<3>,
 	image: ImageStream,
-	{ samplesPerPixel = 20 } = {}
+	{ samplesPerPixel = 20, maxDepth = 50 } = {}
 ) {
 	// Render line-by-line
 	// XXX: This is rendered with a decreasing y (i.e. "bottom up"), which might
@@ -74,7 +93,7 @@ function render(
 				const v = (j + random()) / (image.height - 1);
 
 				const r = castRay(u, v);
-				translate(pixel, rayColor(world, r));
+				translate(pixel, rayColor(world, r, maxDepth));
 			}
 			line[i] = unscaled(pixel, samplesPerPixel);
 		}

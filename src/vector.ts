@@ -1,9 +1,22 @@
 import assert from 'assert';
+import { random } from './utils';
 
 export type Vector<N extends number> = number[];
 
 export function vector<N extends number>(...e: number[]): Vector<N> {
 	return e;
+}
+
+export function randomVector<N extends number>(
+	n: number,
+	min = 0,
+	max = 1
+): Vector<N> {
+	const result = new Array(n);
+	for (let i = 0; i < n; i++) {
+		result[i] = random(min, max);
+	}
+	return result;
 }
 
 export function negate<N extends number>(v: Vector<N>): Vector<N> {
