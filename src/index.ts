@@ -157,7 +157,7 @@ function render(
 function main(out: Writable = process.stdout) {
 	const aspectRatio = 16.0 / 9.0;
 	const imageWidth = 400;
-	const imageHeight = imageWidth / aspectRatio;
+	const imageHeight = Math.floor(imageWidth / aspectRatio);
 
 	const image = ppm(out, {
 		width: imageWidth,
