@@ -197,9 +197,12 @@ function main(out: Writable = process.stdout) {
 	);
 
 	// Camera
-	const cam = camera(vector(-2, 2, 1), vector(0, 0, -1), 20, { aspectRatio });
+	const cam = camera(vector(-2, 2, 1), vector(0, 0, -1), 40, {
+		aspectRatio,
+		aperture: 2.0,
+	});
 
-	const samplesPerPixel = 20;
+	const samplesPerPixel = 100;
 	const maxDepth = 20;
 	render(world, cam, image, {
 		samplesPerPixel,

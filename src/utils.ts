@@ -1,5 +1,4 @@
-import { lengthSquared, randomVector, Vector } from './vector';
-
+import { lengthSquared, randomVector, vector, Vector } from './vector';
 
 export function degreesToRadians(degrees: number): number {
 	return (degrees * Math.PI) / 180.0;
@@ -24,6 +23,15 @@ export function randomVectorInUnitSphere<N extends number>(
 ): Vector<N> {
 	while (true) {
 		const v = randomVector(n, -1, 1);
+		if (lengthSquared(v) < 1) {
+			return v;
+		}
+	}
+}
+
+export function randomVectorInUnitDisk(): Vector<3> {
+	while (true) {
+		const v = vector(random(-1, 1), random(-1, 1), 0);
 		if (lengthSquared(v) < 1) {
 			return v;
 		}

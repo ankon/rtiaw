@@ -1,5 +1,5 @@
 import { ray, Ray } from './ray';
-import { degreesToRadians } from './utils';
+import { degreesToRadians, randomVectorInUnitDisk } from './utils';
 import { cross3, Point3 } from './vec3';
 import {
 	subtract,
@@ -15,6 +15,8 @@ export type CastRay<N extends number> = (u: number, v: number) => Ray<N>;
 
 export interface CamOptions {
 	aspectRatio: number;
+	aperture: number;
+	focusDistance?: number;
 	vUp?: Vector<3>;
 }
 
@@ -31,7 +33,12 @@ export function camera(
 	lookfrom: Point3,
 	lookat: Point3,
 	vfov: number,
-	{ aspectRatio, vUp = vector(0, 1, 0) }: CamOptions
+	{
+		aspectRatio,
+		aperture,
+		focusDistance = 1,
+		vUp = vector(0, 1, 0),
+	}: CamOptions
 ): CastRay<3> {
 	const theta = degreesToRadians(vfov);
 	const h = Math.tan(theta / 2);
@@ -43,23 +50,30 @@ export function camera(
 	const v = cross3(w, u);
 
 	const origin = lookfrom;
-	const horizontal = scaled(u, viewportWidth);
-	const vertical = scaled(v, viewportHeight);
+	const horizontal = scaled(u, focusDistance * viewportWidth);
+	const vertical = scaled(v, focusDistance * viewportHeight);
 	const lowerLeftCorner = subtract(
 		origin,
 		unscaled(horizontal, 2),
 		unscaled(vertical, 2),
-		w
+		scaled(w, focusDistance)
 	);
 
+	/** Radius of the lens through which to send rays */
+	const lensRadius = aperture / 2;
+
 	return (s: number, t: number) => {
+		const [rdX, rdY] = scaled(randomVectorInUnitDisk(), lensRadius);
+		const offset = add(scaled(u, rdX), scaled(v, rdY));
+
 		return ray(
-			origin,
+			add(origin, offset),
 			add(
 				lowerLeftCorner,
 				scaled(horizontal, s),
 				scaled(vertical, t),
-				scaled(origin, -1)
+				scaled(origin, -1),
+				scaled(offset, -1)
 			)
 		);
 	};
