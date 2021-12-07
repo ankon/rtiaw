@@ -11,10 +11,6 @@ export function z(p: Vector<3>): number {
 	return p[2];
 }
 
-/** @deprecated Use `vector` directly */
-export function vec3(x: number, y: number, z: number): Vector<3> {
-	return vector(x, y, z);
-}
 
 // TODO: Is the general formula something like v1[(rotate indices reverse) ... 1, 2, 0]*v2[(rotate indices) ... 2, 0, 1] - (other way around)?
 export function cross3(v1: Vector<3>, v2: Vector<3>): Vector<3> {
@@ -26,4 +22,9 @@ export function cross3(v1: Vector<3>, v2: Vector<3>): Vector<3> {
 }
 
 export type Point3 = Vector<3>;
-export const point3 = vec3;
+export function point3(x: number, y: number, z: number): Point3 {
+	return vector(x, y, z);
+}
+
+/** @deprecated Use `vector` directly */
+export const vec3 = point3;
