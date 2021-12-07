@@ -11,3 +11,11 @@ export function colorToString([r, g, b]: Color): string {
 		255 * b
 	)}`;
 }
+
+export function clampColor(v: Vector, min = 0, max = 1): Vector {
+	return [
+		v[0] < min ? min : v[0] > max ? max : v[0],
+		v[1] < min ? min : v[1] > max ? max : v[1],
+		v[2] < min ? min : v[2] > max ? max : v[2],
+	];
+}

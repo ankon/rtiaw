@@ -2,7 +2,7 @@ import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
 import { CastRay } from './camera';
 
-import { color, Color } from './color';
+import { clampColor, color, Color } from './color';
 import { Hittable } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
@@ -108,7 +108,7 @@ function rayColorIterative(
 
 		// Follow this ray to its next hit
 		r = m.scatteredRay;
-		multiplyInline(attenuation, m.attenuation);
+		multiplyInline(attenuation, clampColor(m.attenuation));
 	}
 
 	return BLACK;
