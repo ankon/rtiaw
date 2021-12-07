@@ -197,7 +197,7 @@ function main(out: Writable = process.stdout) {
 	);
 
 	// Camera
-	const cam = camera(vector(-2, 2, 1), vector(0, 0, -1), 90, { aspectRatio });
+	const cam = camera(vector(-2, 2, 1), vector(0, 0, -1), 20, { aspectRatio });
 
 	const samplesPerPixel = 20;
 	const maxDepth = 20;
