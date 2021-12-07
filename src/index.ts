@@ -166,7 +166,7 @@ function main(out: Writable = process.stdout) {
 
 	const { world, cam } = complexScene(aspectRatio);
 
-	const samplesPerPixel = 500;
+	const samplesPerPixel = 50;
 	const maxDepth = 50;
 	render(world, cam, image, {
 		samplesPerPixel,
