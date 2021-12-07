@@ -42,7 +42,8 @@ export function ppm(
 				const c = line[i];
 				c.forEach((component) => {
 					const gammaCorrected = gammaCorrect(component);
-					out.write(String(Math.floor(255 * gammaCorrected)));
+					const value = Math.floor(255 * gammaCorrected);
+					out.write(String(value));
 					out.write(' ');
 				});
 				out.write('\n');

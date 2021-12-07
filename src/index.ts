@@ -140,7 +140,8 @@ function render(
 				const v = (j + random()) / (image.height - 1);
 
 				const r = castRay(u, v);
-				translate(pixel, trace(world, r, maxDepth));
+				const c = trace(world, r, maxDepth);
+				translate(pixel, c);
 			}
 			line[i] = unscaled(pixel, samplesPerPixel);
 		}
