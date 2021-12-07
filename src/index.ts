@@ -1,18 +1,15 @@
 import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
-import { camera, CastRay } from './camera';
+import { CastRay } from './camera';
 
 import { color, Color } from './color';
-import { dielectric } from './dielectric';
-import { diffuse } from './diffuse';
-import { Hittable, named, scene } from './hittable';
+import { Hittable } from './hittable';
 import { DEBUG, makeLogger } from './logger';
-import { metal } from './metal';
 import { ImageStream, ppm } from './ppm';
 import { direction, Ray } from './ray';
-import { sphere } from './sphere';
+import { simpleSceneWith3Spheres } from './scenes';
 import { random } from './utils';
-import { point3, y } from './vec3';
+import { y } from './vec3';
 import {
 	add,
 	multiply,
@@ -20,7 +17,6 @@ import {
 	translate,
 	unit,
 	unscaled,
-	vector,
 	Vector,
 } from './vector';
 
@@ -168,39 +164,7 @@ function main(out: Writable = process.stdout) {
 		height: imageHeight,
 	});
 
-	// World
-	const world: Hittable<3> = scene(
-		// Ground
-		named(
-			sphere(point3(0, -100.5, -1), 100, diffuse(color(0.8, 0.8, 0))),
-			'ground'
-		),
-		// Center
-		named(
-			sphere(point3(0, 0, -1), 0.5, diffuse(color(0.1, 0.2, 0.5))),
-			'center'
-		),
-		// Left
-		named(
-			sphere(point3(-1.0, 0, -1), 0.5, dielectric(1.5, color(1, 1, 1))),
-			'left'
-		),
-		named(
-			sphere(point3(-1.0, 0, -1), -0.45, dielectric(1.5, color(1, 1, 1))),
-			'left_inner'
-		),
-		// Right
-		named(
-			sphere(point3(1.0, 0, -1), 0.5, metal(color(0.8, 0.6, 0.2), 0.1)),
-			'right'
-		)
-	);
-
-	// Camera
-	const cam = camera(vector(-2, 2, 1), vector(0, 0, -1), 40, {
-		aspectRatio,
-		aperture: 2.0,
-	});
+	const { world, cam } = simpleSceneWith3Spheres(aspectRatio);
 
 	const samplesPerPixel = 100;
 	const maxDepth = 20;
