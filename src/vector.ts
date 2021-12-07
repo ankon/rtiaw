@@ -42,6 +42,13 @@ export function lengthSquared([e0, e1, e2]: Vector): number {
 	return e0 * e0 + e1 * e1 + e2 * e2;
 }
 
+export function multiplyInline(v: Vector, other: Vector): Vector {
+	v[0] *= other[0];
+	v[1] *= other[1];
+	v[2] *= other[2];
+	return v;
+}
+
 // Utilities
 
 export function add(v: Vector, ...other: Vector[]): Vector {

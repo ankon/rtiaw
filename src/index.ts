@@ -13,6 +13,7 @@ import { y } from './vec3';
 import {
 	add,
 	multiply,
+	multiplyInline,
 	scaled,
 	translate,
 	unit,
@@ -71,6 +72,46 @@ function rayColor(world: Hittable, r: Ray, depth: number): Color {
 	const background = unit(direction(r));
 	const t = 0.5 * (y(background) + 1.0);
 	return lerp(color(1.0, 1.0, 1.0), color(0.5, 0.7, 1.0), t);
+}
+
+function rayColorIterative(
+	world: Hittable,
+	cameraRay: Ray,
+	depth: number
+): Color {
+	let attenuation: Color = color(1, 1, 1);
+	let r = cameraRay;
+	while (depth-- > 0) {
+		// 0.0001: Avoid "Shadow Acne"
+		const hit = world(r, 0.0001, Number.POSITIVE_INFINITY);
+		if (!hit) {
+			// Background color
+			const background = unit(direction(r));
+			const t = 0.5 * (y(background) + 1.0);
+			const backgroundColor = lerp(
+				color(1.0, 1.0, 1.0),
+				color(0.5, 0.7, 1.0),
+				t
+			);
+			// Combine the source color of the ray with the attenuation of the material
+			// TODO: This `multiply` is something one would want to configure.
+			return multiply(attenuation, backgroundColor);
+		}
+		if (!hit.material) {
+			throw new Error(`No material on hit`);
+		}
+
+		const m = hit.material(r, hit.p, hit.n, hit.isFrontFace);
+		if (!m) {
+			break;
+		}
+
+		// Follow this ray to its next hit
+		r = m.scatteredRay;
+		multiplyInline(attenuation, m.attenuation);
+	}
+
+	return BLACK;
 }
 
 /**
@@ -171,7 +212,7 @@ function main(out: Writable = process.stdout) {
 		trace:
 			process.env.DEBUG ?? false
 				? (world, r, depth) => heatColor(world, r, maxDepth, depth)
-				: rayColor,
+				: rayColorIterative,
 	});
 }
 
