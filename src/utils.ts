@@ -18,18 +18,16 @@ export function clamp(v: number, min: number, max: number) {
 	}
 }
 
-export function randomVectorInUnitSphere<N extends number>(
-	n: number
-): Vector<N> {
+export function randomVectorInUnitSphere(): Vector {
 	while (true) {
-		const v = randomVector(n, -1, 1);
+		const v = randomVector(-1, 1);
 		if (lengthSquared(v) < 1) {
 			return v;
 		}
 	}
 }
 
-export function randomVectorInUnitDisk(): Vector<3> {
+export function randomVectorInUnitDisk(): Vector {
 	while (true) {
 		const v = vector(random(-1, 1), random(-1, 1), 0);
 		if (lengthSquared(v) < 1) {

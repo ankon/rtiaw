@@ -1,6 +1,6 @@
 import { vector, Vector } from './vector';
 
-export type Color = Vector<3>;
+export type Color = Vector;
 
 export function color(r: number, g: number, b: number): Color {
 	return vector(r, g, b);

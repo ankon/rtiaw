@@ -4,11 +4,11 @@ import { direction, ray } from './ray';
 import { randomVectorInUnitSphere } from './utils';
 import { dot, reflect, scaled, translate, unit } from './vector';
 
-export function metal(albedo: Color, fuzz: number = 0): Material<3> {
+export function metal(albedo: Color, fuzz: number = 0): Material {
 	return (r, at, n) => {
 		const d = reflect(unit(direction(r)), n);
 		if (fuzz) {
-			translate(d, scaled(randomVectorInUnitSphere(3), fuzz));
+			translate(d, scaled(randomVectorInUnitSphere(), fuzz));
 		}
 
 		// If this is on the "inside": Don't reflect anything

@@ -16,7 +16,7 @@ function reflectance(cosine: number, refractionIndex: number) {
 export function dielectric(
 	refractionIndex: number,
 	attenuation = color(1, 1, 1)
-): Material<3> {
+): Material {
 	return (r, at, n, isFrontFace) => {
 		const refractionRatio = isFrontFace
 			? 1.0 / refractionIndex

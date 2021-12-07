@@ -7,8 +7,8 @@ import { subtract, dot, lengthSquared, unscaled } from './vector';
 export function sphere(
 	center: Point3,
 	radius: number,
-	material: Material<3>
-): Hittable<3> {
+	material: Material
+): Hittable {
 	return (r, tMin, tMax) => {
 		const oc = subtract(origin(r), center);
 		const a = lengthSquared(direction(r));

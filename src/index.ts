@@ -30,11 +30,7 @@ const logger = makeLogger('rtiaw', process.stderr, DEBUG);
  * @param t
  * @returns
  */
-function lerp<N extends number>(
-	v1: Vector<N>,
-	v2: Vector<N>,
-	t: number
-): Vector<N> {
+function lerp(v1: Vector, v2: Vector, t: number): Vector {
 	return add(scaled(v1, 1.0 - t), scaled(v2, t));
 }
 
@@ -46,7 +42,7 @@ const BLACK = color(0, 0, 0);
  * @param r
  * @returns
  */
-function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
+function rayColor(world: Hittable, r: Ray, depth: number): Color {
 	if (depth <= 0) {
 		return BLACK;
 	}
@@ -87,8 +83,8 @@ function rayColor(world: Hittable<3>, r: Ray<3>, depth: number): Color {
  * @returns
  */
 function heatColor(
-	world: Hittable<3>,
-	r: Ray<3>,
+	world: Hittable,
+	r: Ray,
 	maxDepth: number,
 	depth: number
 ): Color {
@@ -118,12 +114,12 @@ function heatColor(
 interface RenderOptions {
 	samplesPerPixel: number;
 	maxDepth: number;
-	trace: (world: Hittable<3>, r: Ray<3>, depth: number) => Color;
+	trace: (world: Hittable, r: Ray, depth: number) => Color;
 }
 
 function render(
-	world: Hittable<3>,
-	castRay: CastRay<3>,
+	world: Hittable,
+	castRay: CastRay,
 	image: ImageStream,
 	{
 		samplesPerPixel = 1,

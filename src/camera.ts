@@ -11,13 +11,13 @@ import {
 	unit,
 } from './vector';
 
-export type CastRay<N extends number> = (u: number, v: number) => Ray<N>;
+export type CastRay = (u: number, v: number) => Ray;
 
 export interface CamOptions {
 	aspectRatio: number;
 	aperture: number;
 	focusDistance?: number;
-	vUp?: Vector<3>;
+	vUp?: Vector;
 }
 
 /**
@@ -39,7 +39,7 @@ export function camera(
 		focusDistance = 1,
 		vUp = vector(0, 1, 0),
 	}: CamOptions
-): CastRay<3> {
+): CastRay {
 	const theta = degreesToRadians(vfov);
 	const h = Math.tan(theta / 2);
 	const viewportHeight = 2.0 * h;

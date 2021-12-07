@@ -10,12 +10,12 @@ import { point3 } from './vec3';
 import { length, multiply, randomVector, subtract, vector } from './vector';
 
 export interface Scene {
-	world: Hittable<3>;
-	cam: CastRay<3>;
+	world: Hittable;
+	cam: CastRay;
 }
 
 export function simpleSceneWith3Spheres(aspectRatio: number): Scene {
-	const world: Hittable<3> = scene(
+	const world: Hittable = scene(
 		// Ground
 		named(
 			sphere(point3(0, -100.5, -1), 100, diffuse(color(0.8, 0.8, 0))),
@@ -52,7 +52,7 @@ export function simpleSceneWith3Spheres(aspectRatio: number): Scene {
 }
 
 export function complexScene(aspectRatio: number): Scene {
-	const hittables: Hittable<3>[] = [];
+	const hittables: Hittable[] = [];
 
 	hittables.push(
 		sphere(point3(0, -1000, 0), 1000, diffuse(color(0.5, 0.5, 0.5)))
@@ -66,11 +66,11 @@ export function complexScene(aspectRatio: number): Scene {
 			if (length(subtract(center, point3(4, 0.2, 0))) > 0.9) {
 				if (choose_mat < 0.8) {
 					// diffuse
-					const albedo = multiply(randomVector(3), randomVector(3));
+					const albedo = multiply(randomVector(), randomVector());
 					hittables.push(sphere(center, 0.2, diffuse(albedo)));
 				} else if (choose_mat < 0.95) {
 					// metal
-					const albedo = randomVector(3, 0.5, 1);
+					const albedo = randomVector(0.5, 1);
 					const fuzz = random(0, 0.5);
 					hittables.push(sphere(center, 0.2, metal(albedo, fuzz)));
 				} else {

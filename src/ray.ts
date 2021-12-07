@@ -1,21 +1,18 @@
 import { add, scaled, Vector } from './vector';
 
-export type Ray<N extends number> = [origin: Vector<N>, direction: Vector<N>];
+export type Ray = [origin: Vector, direction: Vector];
 
-export function ray<N extends number>(origin: Vector<N>, direction: Vector<N>): Ray<N> {
+export function ray(origin: Vector, direction: Vector): Ray {
 	return [origin, direction];
 }
 
-export function origin<N extends number>(r: Ray<N>): Vector<N> {
+export function origin(r: Ray): Vector {
 	return r[0];
 }
-export function direction<N extends number>(r: Ray<N>): Vector<N> {
+export function direction(r: Ray): Vector {
 	return r[1];
 }
 
-export function at<N extends number>(
-	[origin, direction]: Ray<N>,
-	t: number
-): Vector<N> {
+export function at([origin, direction]: Ray, t: number): Vector {
 	return add(origin, scaled(direction, t));
 }

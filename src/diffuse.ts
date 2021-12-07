@@ -5,22 +5,19 @@ import { randomVectorInUnitSphere } from './utils';
 import { Point3 } from './vec3';
 import { Vector, add, unit, dot, negate, subtract, nearZero } from './vector';
 
-export function lazyHackDiffuse(at: Point3, n: Vector<3>): Vector<3> {
-	const randomVector = randomVectorInUnitSphere(3);
+export function lazyHackDiffuse(at: Point3, n: Vector): Vector {
+	const randomVector = randomVectorInUnitSphere();
 	return add(at, n, randomVector);
 }
 
-export function lambertianDiffuse(at: Point3, n: Vector<3>): Vector<3> {
-	const randomVector = randomVectorInUnitSphere(3);
+export function lambertianDiffuse(at: Point3, n: Vector): Vector {
+	const randomVector = randomVectorInUnitSphere();
 	return add(at, n, unit(randomVector));
 }
 
 // "Old school"
-export function hemisphericalScatteringDiffuse(
-	at: Point3,
-	n: Vector<3>
-): Vector<3> {
-	const randomVector = randomVectorInUnitSphere(3);
+export function hemisphericalScatteringDiffuse(at: Point3, n: Vector): Vector {
+	const randomVector = randomVectorInUnitSphere();
 	// Check whether this is in the same hemisphere as the normal, otherwise
 	// negate it.
 	const inHemisphere =
@@ -38,7 +35,7 @@ export function hemisphericalScatteringDiffuse(
 export function diffuse(
 	albedo: Color,
 	calculateDiffuseTarget = lambertianDiffuse
-): Material<3> {
+): Material {
 	return (r, at, n) => {
 		const target = calculateDiffuseTarget(at, n);
 		let d = subtract(target, at);

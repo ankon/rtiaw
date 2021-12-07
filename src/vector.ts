@@ -1,32 +1,21 @@
 import assert from 'assert';
 import { random } from './utils';
 
-export type Vector<N extends number> = number[];
+export type Vector = [number, number, number];
 
-export function vector<N extends number>(...e: number[]): Vector<N> {
-	return e;
+export function vector(e0: number, e1: number, e2: number): Vector {
+	return [e0, e1, e2];
 }
 
-export function randomVector<N extends number>(
-	n: number,
-	min = 0,
-	max = 1
-): Vector<N> {
-	const result = new Array(n);
-	for (let i = 0; i < n; i++) {
-		result[i] = random(min, max);
-	}
-	return result;
+export function randomVector(min = 0, max = 1): Vector {
+	return [random(min, max), random(min, max), random(min, max)];
 }
 
-export function negate<N extends number>(v: Vector<N>): Vector<N> {
-	return v.map((e) => -e);
+export function negate([e0, e1, e2]: Vector): Vector {
+	return [-e0, -e1, -e2];
 }
 
-export function translate<N extends number>(
-	v: Vector<N>,
-	v2: Vector<N>
-): Vector<N> {
+export function translate(v: Vector, v2: Vector): Vector {
 	assert(v.length === v2.length);
 	for (let i = 0; i < v.length; i++) {
 		v[i] += v2[i];
@@ -34,73 +23,73 @@ export function translate<N extends number>(
 	return v;
 }
 
-export function scale<N extends number>(v: Vector<N>, n: number): Vector<N> {
+export function scale(v: Vector, n: number): Vector {
 	for (let i = 0; i < v.length; i++) {
 		v[i] += n;
 	}
 	return v;
 }
 
-export function unscale<N extends number>(v: Vector<N>, n: number): Vector<N> {
+export function unscale(v: Vector, n: number): Vector {
 	return scale(v, 1 / n);
 }
 
-export function length<N extends number>(v: Vector<N>): number {
+export function length(v: Vector): number {
 	return Math.sqrt(lengthSquared(v));
 }
 
-export function lengthSquared<N extends number>(v: Vector<N>): number {
-	return v.reduce((r, e) => r + e * e, 0);
+export function lengthSquared([e0, e1, e2]: Vector): number {
+	return e0 * e0 + e1 * e1 + e2 * e2;
 }
 
 // Utilities
 
-export function add<N extends number>(v: Vector<N>, ...other: Vector<N>[]): Vector<N> {
-	return v.map((e, i) => other.reduce((s, v) => s + v[i], e));
+export function add(v: Vector, ...other: Vector[]): Vector {
+	const result: Vector = [...v];
+	for (let i = 0; i < other.length; i++) {
+		result[0] += other[i][0];
+		result[1] += other[i][1];
+		result[2] += other[i][2];
+	}
+	return result;
 }
-export function subtract<N extends number>(
-	v: Vector<N>,
-	...other: Vector<N>[]
-): Vector<N> {
-	return v.map((e, i) => e - other.reduce((s, v) => s + v[i], 0));
+export function subtract(v: Vector, ...other: Vector[]): Vector {
+	const result: Vector = [...v];
+	for (let i = 0; i < other.length; i++) {
+		result[0] -= other[i][0];
+		result[1] -= other[i][1];
+		result[2] -= other[i][2];
+	}
+	return result;
 }
-export function multiply<N extends number>(
-	v1: Vector<N>,
-	v2: Vector<N>
-): Vector<N> {
-	assert(v1.length === v2.length);
-	return v1.map((e, i) => e * v2[i]);
+export function multiply(v1: Vector, v2: Vector): Vector {
+	return [v1[0] * v2[0], v1[1] * v2[1], v1[2] * v2[2]];
 }
 
-export function scaled<N extends number>(v: Vector<N>, n: number): Vector<N> {
-	return v.map((e) => e * n);
+export function scaled([e0, e1, e2]: Vector, n: number): Vector {
+	return [e0 * n, e1 * n, e2 * n];
 }
-export function unscaled<N extends number>(v: Vector<N>, n: number): Vector<N> {
+export function unscaled(v: Vector, n: number): Vector {
 	return scaled(v, 1 / n);
 }
 
-export function dot<N extends number>(v1: Vector<N>, v2: Vector<N>): number {
-	assert(v1.length === v2.length);
-	return v1.map((e, i) => e * v2[i]).reduce((r, e) => r + e, 0);
+export function dot(v1: Vector, v2: Vector): number {
+	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 }
-export function unit<N extends number>(v: Vector<N>): Vector<N> {
+export function unit(v: Vector): Vector {
 	return unscaled(v, length(v));
 }
 
-export function nearZero<N extends number>(v: Vector<N>): boolean {
+export function nearZero(v: Vector): boolean {
 	const s = 1e-8;
 	return v.every((e) => Math.abs(e) < s);
 }
 
-export function reflect<N extends number>(v: Vector<N>, n: Vector<N>) {
+export function reflect(v: Vector, n: Vector) {
 	return subtract(v, scaled(n, 2 * dot(v, n)));
 }
 
-export function refract<N extends number>(
-	v: Vector<N>,
-	n: Vector<N>,
-	etaIOverEtaT: number
-): Vector<N> {
+export function refract(v: Vector, n: Vector, etaIOverEtaT: number): Vector {
 	const cosTheta = Math.min(dot(negate(v), n), 1.0);
 	const rPerpendicular = scaled(add(v, scaled(n, cosTheta)), etaIOverEtaT);
 	const rParallel = scaled(
@@ -110,6 +99,6 @@ export function refract<N extends number>(
 	return add(rPerpendicular, rParallel);
 }
 
-export function vectorToString<N extends number>(v: Vector<N>): string {
+export function vectorToString(v: Vector): string {
 	return v.join(' ');
 }

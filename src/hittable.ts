@@ -2,13 +2,13 @@ import { Material } from './material';
 import { direction, Ray } from './ray';
 import { dot, scaled, Vector } from './vector';
 
-export interface Hit<N extends number> {
-	p: Vector<N>;
-	n: Vector<N>;
+export interface Hit {
+	p: Vector;
+	n: Vector;
 	t: number;
 	isFrontFace: boolean;
 	/** The material that was hit */
-	material: Material<N>;
+	material: Material;
 }
 
 /**
@@ -19,13 +19,13 @@ export interface Hit<N extends number> {
  * @param n The normal pointing outwards from the face. This should be unit-length.
  * @param material
  */
-export function hit<N extends number>(
-	r: Ray<N>,
+export function hit(
+	r: Ray,
 	t: number,
-	p: Vector<N>,
-	n: Vector<N>,
-	material: Material<N>
-): Hit<N> {
+	p: Vector,
+	n: Vector,
+	material: Material
+): Hit {
 	const isFrontFace = dot(direction(r), n) < 0;
 	return {
 		t,
@@ -36,17 +36,11 @@ export function hit<N extends number>(
 	};
 }
 
-export type Hittable<N extends number> = (
-	r: Ray<N>,
-	tMin: number,
-	tMax: number
-) => Hit<N> | undefined;
+export type Hittable = (r: Ray, tMin: number, tMax: number) => Hit | undefined;
 
-export function scene<N extends number>(
-	...hittables: Hittable<N>[]
-): Hittable<N> {
+export function scene(...hittables: Hittable[]): Hittable {
 	return (r, tMin, tMax) => {
-		let closest: Hit<N> | undefined;
+		let closest: Hit | undefined;
 		for (const hittable of hittables) {
 			const max = closest ? closest.t : tMax;
 			const hit = hittable(r, tMin, max);
@@ -60,10 +54,7 @@ export function scene<N extends number>(
 	};
 }
 
-export function named<N extends number>(
-	hittable: Hittable<N>,
-	name: string
-): Hittable<N> {
+export function named(hittable: Hittable, name: string): Hittable {
 	return (r, tMin, tMax) => {
 		const result = hittable(r, tMin, tMax);
 		if (!result) {
