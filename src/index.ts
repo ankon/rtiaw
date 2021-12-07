@@ -7,7 +7,7 @@ import { Hittable } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
 import { direction, Ray } from './ray';
-import { simpleSceneWith3Spheres } from './scenes';
+import { complexScene } from './scenes';
 import { random } from './utils';
 import { y } from './vec3';
 import {
@@ -155,8 +155,8 @@ function render(
 }
 
 function main(out: Writable = process.stdout) {
-	const aspectRatio = 16.0 / 9.0;
-	const imageWidth = 400;
+	const aspectRatio = 3 / 2; // 16.0 / 9.0;
+	const imageWidth = 1200; // 400;
 	const imageHeight = Math.floor(imageWidth / aspectRatio);
 
 	const image = ppm(out, {
@@ -164,10 +164,10 @@ function main(out: Writable = process.stdout) {
 		height: imageHeight,
 	});
 
-	const { world, cam } = simpleSceneWith3Spheres(aspectRatio);
+	const { world, cam } = complexScene(aspectRatio);
 
-	const samplesPerPixel = 100;
-	const maxDepth = 20;
+	const samplesPerPixel = 500;
+	const maxDepth = 50;
 	render(world, cam, image, {
 		samplesPerPixel,
 		maxDepth,

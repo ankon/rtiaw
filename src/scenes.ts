@@ -5,8 +5,9 @@ import { diffuse } from './diffuse';
 import { Hittable, scene, named } from './hittable';
 import { metal } from './metal';
 import { sphere } from './sphere';
+import { random } from './utils';
 import { point3 } from './vec3';
-import { vector } from './vector';
+import { length, multiply, randomVector, subtract, vector } from './vector';
 
 export interface Scene {
 	world: Hittable<3>;
@@ -48,4 +49,53 @@ export function simpleSceneWith3Spheres(aspectRatio: number): Scene {
 	});
 
 	return { world, cam };
+}
+
+export function complexScene(aspectRatio: number): Scene {
+	const hittables: Hittable<3>[] = [];
+
+	hittables.push(
+		sphere(point3(0, -1000, 0), 1000, diffuse(color(0.5, 0.5, 0.5)))
+	);
+
+	for (let a = -11; a < 11; a++) {
+		for (let b = -11; b < 11; b++) {
+			const choose_mat = random();
+			const center = point3(a + 0.9 * random(), 0.2, b + 0.9 * random());
+
+			if (length(subtract(center, point3(4, 0.2, 0))) > 0.9) {
+				if (choose_mat < 0.8) {
+					// diffuse
+					const albedo = multiply(randomVector(3), randomVector(3));
+					hittables.push(sphere(center, 0.2, diffuse(albedo)));
+				} else if (choose_mat < 0.95) {
+					// metal
+					const albedo = randomVector(3, 0.5, 1);
+					const fuzz = random(0, 0.5);
+					hittables.push(sphere(center, 0.2, metal(albedo, fuzz)));
+				} else {
+					// glass
+					hittables.push(sphere(center, 0.2, dielectric(1.5)));
+				}
+			}
+		}
+	}
+
+	hittables.push(sphere(point3(0, 1, 0), 1.0, dielectric(1.5)));
+
+	hittables.push(
+		sphere(point3(-4, 1, 0), 1.0, diffuse(color(0.4, 0.2, 0.1)))
+	);
+
+	hittables.push(
+		sphere(point3(4, 1, 0), 1.0, metal(color(0.7, 0.6, 0.5), 0.0))
+	);
+
+	const cam = camera(point3(13, 2, 3), point3(0, 0, 0), 20, {
+		aspectRatio,
+		aperture: 0.1,
+		focusDistance: 10,
+	});
+
+	return { world: scene(...hittables), cam };
 }
