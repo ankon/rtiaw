@@ -42,7 +42,8 @@ export type Hittable = (r: Ray, tMin: number, tMax: number) => Hit | undefined;
 export function scene(...hittables: Hittable[]): Hittable {
 	return (r, tMin, tMax) => {
 		let closest: Hit | undefined;
-		for (const hittable of hittables) {
+		for (let i = 0; i < hittables.length; i++) {
+			const hittable = hittables[i];
 			const max = closest ? closest.t : tMax;
 			const hit = hittable(r, tMin, max);
 			if (hit) {
