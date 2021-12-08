@@ -40,12 +40,12 @@ export function ppm(
 		writeLine(line) {
 			for (let i = 0; i < line.length; i++) {
 				const c = line[i];
-				c.forEach((component) => {
-					const gammaCorrected = gammaCorrect(component);
+				for (let j = 0; j < 3; j++) {
+					const gammaCorrected = gammaCorrect(c[j]);
 					const value = Math.floor(255 * gammaCorrected);
 					out.write(String(value));
 					out.write(' ');
-				});
+				}
 				out.write('\n');
 			}
 			out.write('\n');
