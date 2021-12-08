@@ -3,6 +3,7 @@ import { Writable } from 'stream';
 import { CastRay } from './camera';
 
 import { clampColor, color, Color } from './color';
+import { DEBUG_MODE } from './debug';
 import { Hittable } from './hittable';
 import { DEBUG, makeLogger } from './logger';
 import { ImageStream, ppm } from './ppm';
@@ -209,10 +210,9 @@ function main(out: Writable = process.stdout) {
 	render(world, cam, image, {
 		samplesPerPixel,
 		maxDepth,
-		trace:
-			process.env.DEBUG ?? false
-				? (world, r, depth) => heatColor(world, r, maxDepth, depth)
-				: rayColorIterative,
+		trace: DEBUG_MODE
+			? (world, r, depth) => heatColor(world, r, maxDepth, depth)
+			: rayColorIterative,
 	});
 }
 

@@ -1,3 +1,4 @@
+import { DEBUG_MODE } from './debug';
 import { Material } from './material';
 import { direction, Ray } from './ray';
 import { dot, scaled, Vector } from './vector';
@@ -55,6 +56,10 @@ export function scene(...hittables: Hittable[]): Hittable {
 }
 
 export function named(hittable: Hittable, name: string): Hittable {
+	if (!DEBUG_MODE) {
+		return hittable;
+	}
+
 	return (r, tMin, tMax) => {
 		const result = hittable(r, tMin, tMax);
 		if (!result) {
