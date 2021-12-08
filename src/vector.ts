@@ -11,8 +11,8 @@ export function randomVector(min = 0, max = 1): Vector {
 	return [random(min, max), random(min, max), random(min, max)];
 }
 
-export function negate([e0, e1, e2]: Vector): Vector {
-	return [-e0, -e1, -e2];
+export function negate(v: Vector): Vector {
+	return [-v[0], -v[1], -v[2]];
 }
 
 export function translate(v: Vector, v2: Vector): Vector {
@@ -38,8 +38,8 @@ export function length(v: Vector): number {
 	return Math.sqrt(lengthSquared(v));
 }
 
-export function lengthSquared([e0, e1, e2]: Vector): number {
-	return e0 * e0 + e1 * e1 + e2 * e2;
+export function lengthSquared(v: Vector): number {
+	return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
 }
 
 export function multiplyInline(v: Vector, other: Vector): Vector {
@@ -51,21 +51,33 @@ export function multiplyInline(v: Vector, other: Vector): Vector {
 
 // Utilities
 
-export function add(v: Vector, ...other: Vector[]): Vector {
-	const result: Vector = [...v];
-	for (let i = 0; i < other.length; i++) {
-		result[0] += other[i][0];
-		result[1] += other[i][1];
-		result[2] += other[i][2];
+export function add(v: Vector, other: Vector, ...others: Vector[]): Vector {
+	const result: Vector = [v[0] + other[0], v[1] + other[1], v[2] + other[2]];
+	if (others.length === 0) {
+		return result;
+	}
+
+	for (let i = 0; i < others.length; i++) {
+		result[0] += others[i][0];
+		result[1] += others[i][1];
+		result[2] += others[i][2];
 	}
 	return result;
 }
-export function subtract(v: Vector, ...other: Vector[]): Vector {
-	const result: Vector = [...v];
-	for (let i = 0; i < other.length; i++) {
-		result[0] -= other[i][0];
-		result[1] -= other[i][1];
-		result[2] -= other[i][2];
+export function subtract(
+	v: Vector,
+	other: Vector,
+	...others: Vector[]
+): Vector {
+	const result: Vector = [v[0] - other[0], v[1] - other[1], v[2] - other[2]];
+	if (others.length === 0) {
+		return result;
+	}
+
+	for (let i = 0; i < others.length; i++) {
+		result[0] -= others[i][0];
+		result[1] -= others[i][1];
+		result[2] -= others[i][2];
 	}
 	return result;
 }
@@ -73,8 +85,8 @@ export function multiply(v1: Vector, v2: Vector): Vector {
 	return [v1[0] * v2[0], v1[1] * v2[1], v1[2] * v2[2]];
 }
 
-export function scaled([e0, e1, e2]: Vector, n: number): Vector {
-	return [e0 * n, e1 * n, e2 * n];
+export function scaled(v: Vector, n: number): Vector {
+	return [v[0] * n, v[1] * n, v[2] * n];
 }
 export function unscaled(v: Vector, n: number): Vector {
 	return scaled(v, 1 / n);
